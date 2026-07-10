@@ -317,6 +317,63 @@
                     <span class="text-gray-400">[2026-07-01 03:12:19]</span> USER: 표정원 <br class="sm:hidden">→ <span>LOGIN SUCCESS</span>
                 </div>
 
+                <!-- ===== 은닉 노드(몰카 서버) 파일 조작 로그 ===== -->
+                <div class="mt-6 pt-3 border-t border-blue-900/50">
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="text-red-400 font-bold text-xs sm:text-sm">FILE OPERATION LOG — /mnt/hidden01/cam04</h3>
+                        <span class="text-red-900 text-[9px] sm:text-[10px] hidden sm:block">UNINDEXED NODE</span>
+                    </div>
+
+                    <!-- 파일 명명/분할 규칙 (결번 역산의 근거) -->
+                    <div class="text-[10px] sm:text-[11px] text-gray-500 bg-black/60 border-l-2 border-gray-700 pl-2 py-1.5 mb-3 leading-relaxed">
+                        SEGMENT POLICY : 5분 단위 자동 분할<br>
+                        FILE FORMAT&nbsp;&nbsp;&nbsp;: CAM04_&lt;YYYYMMDD&gt;_&lt;HHMM&gt;_&lt;SEQ&gt;.h264<br>
+                        SEQ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: 채널 통합 일련번호 · <span class="text-gray-300">결번 없이 1씩 증가</span>
+                    </div>
+
+                    <!-- 표정원의 삭제 조작 -->
+                    <div class="space-y-2">
+                        <div class="text-red-400 bg-red-900/20 border-l-2 border-red-600 pl-2 py-1">
+                            <span class="text-gray-400">[2026-07-01 22:26:11]</span> USER: 표정원 <br class="sm:hidden">→ <span>MOUNT /mnt/hidden01 (rw)</span>
+                        </div>
+                        <div class="text-red-400 bg-red-900/20 border-l-2 border-red-600 pl-2 py-1 font-bold shadow-[0_0_10px_rgba(220,38,38,0.15)]">
+                            <span class="text-gray-400">[2026-07-01 22:26:38]</span> USER: 표정원 <br class="sm:hidden">→ EXEC: <span class="text-red-300">xargs -a /tmp/.purge_list shred -u -n 3</span> <span class="text-red-500">(3 files removed)</span>
+                        </div>
+                        <div class="text-red-400 bg-red-900/10 border-l-2 border-red-800 pl-2 py-1 opacity-90">
+                            <span class="text-gray-400">[2026-07-01 22:26:44]</span> USER: 표정원 <br class="sm:hidden">→ EXEC: <span class="text-red-300">rm -f /tmp/.purge_list; sync; history -c</span>
+                        </div>
+                        <div class="text-red-400 bg-red-900/10 border-l-2 border-red-800 pl-2 py-1 opacity-80">
+                            <span class="text-gray-400">[2026-07-01 22:26:52]</span> USER: 표정원 <br class="sm:hidden">→ <span>UNMOUNT /mnt/hidden01</span>
+                        </div>
+                    </div>
+
+                    <!-- 삭제 후 디렉터리 목록 (결번 단서) -->
+                    <div class="mt-3 bg-black border border-gray-800 rounded p-2">
+                        <div class="text-gray-500 text-[10px] sm:text-[11px] mb-1">$ ls -1 /mnt/hidden01/cam04/ | tail -8</div>
+                        <div class="text-gray-300 text-[10px] sm:text-[11px] leading-relaxed">
+                            CAM04_20260701_2145_0415.h264<br>
+                            CAM04_20260701_2150_0416.h264<br>
+                            CAM04_20260701_2155_0417.h264<br>
+                            CAM04_20260701_2200_0418.h264<br>
+                            CAM04_20260701_2205_<span class="text-amber-400">0419</span>.h264<br>
+                            CAM04_20260701_2225_<span class="text-amber-400">0423</span>.h264<br>
+                            CAM04_20260701_2230_0424.h264<br>
+                            CAM04_20260701_2235_0425.h264
+                        </div>
+                    </div>
+
+                    <!-- 무결성 검사 (결번 개수만 노출) -->
+                    <div class="mt-2 bg-black border border-red-900/50 rounded p-2">
+                        <div class="text-gray-500 text-[10px] sm:text-[11px] mb-1">$ cat /var/log/rec_manifest.chk</div>
+                        <div class="text-[10px] sm:text-[11px] leading-relaxed">
+                            <span class="text-gray-400">EXPECTED SEQ&nbsp;: 0001 – 0425</span><br>
+                            <span class="text-gray-400">PRESENT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: 422 files</span><br>
+                            <span class="text-red-400 font-bold">MISSING&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: 3 files</span><br>
+                            <span class="text-red-400 font-bold">INTEGRITY&nbsp;&nbsp;&nbsp;: FAIL — sequence break after 0419</span>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
 
