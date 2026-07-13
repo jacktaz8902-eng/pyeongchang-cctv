@@ -156,14 +156,14 @@
             <button onclick="switchTab('general')" id="tab-general" class="px-4 py-2 bg-green-900/40 text-green-400 border-b-2 border-green-400 rounded-sm transition-colors">
                 [1] 일반구역 (5CH)
             </button>
-            <button onclick="requestVip()" id="tab-vip" class="px-4 py-2 text-gray-500 border-b-2 border-transparent hover:text-red-400 hover:bg-red-900/20 rounded-sm transition-colors">
+            <button onclick="requestGate('vip')" id="tab-vip" class="px-4 py-2 text-gray-500 border-b-2 border-transparent hover:text-red-400 hover:bg-red-900/20 rounded-sm transition-colors">
                 [2] VIP <span id="vip-lock-ico">🔒</span>
             </button>
             <button onclick="switchTab('logs')" id="tab-logs" class="px-4 py-2 text-gray-500 border-b-2 border-transparent hover:text-blue-400 hover:bg-blue-900/20 rounded-sm transition-colors">
                 [3] 시스템 로그
             </button>
-            <button onclick="switchTab('motion')" id="tab-motion" class="px-4 py-2 text-gray-500 border-b-2 border-transparent hover:text-amber-400 hover:bg-amber-900/20 rounded-sm transition-colors">
-                [4] 움직임 감지 ⚠
+            <button onclick="requestGate('motion')" id="tab-motion" class="px-4 py-2 text-gray-500 border-b-2 border-transparent hover:text-amber-400 hover:bg-amber-900/20 rounded-sm transition-colors">
+                [4] 움직임 감지 <span id="motion-lock-ico">🔒</span>
             </button>
         </div>
     </header>
@@ -511,21 +511,21 @@
         </div>
     </div>
 
-    <!-- VIP 접근 잠금 모달 (권한코드 0702) -->
-    <div id="vip-modal" class="hidden fixed inset-0 z-[90] bg-black/90 flex-col items-center justify-center px-4">
-        <div id="vip-box" class="w-full max-w-xs bg-[#0a0505] border-2 border-red-600 rounded p-6 text-center shadow-[0_0_40px_rgba(220,38,38,0.3)]">
+    <!-- 접근 잠금 모달 (VIP·움직임 감지 공용, 권한코드 0702) -->
+    <div id="gate-modal" class="hidden fixed inset-0 z-[90] bg-black/90 flex-col items-center justify-center px-4">
+        <div id="gate-box" class="w-full max-w-xs bg-[#0a0505] border-2 border-red-600 rounded p-6 text-center shadow-[0_0_40px_rgba(220,38,38,0.3)]">
             <div class="w-14 h-14 mx-auto rounded-full border-2 border-red-600 flex items-center justify-center bg-red-950/40 mb-3">
                 <svg class="w-7 h-7 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
             </div>
-            <h2 class="text-red-400 font-black tracking-widest mono-font">VIP 구역 잠금</h2>
-            <p class="text-red-800 text-[11px] mono-font mt-1">301호 · 접근 권한 코드</p>
-            <input id="vip-input" type="password" inputmode="numeric" maxlength="4" placeholder="••••" autocomplete="off" class="mt-4 w-36 text-center text-xl tracking-[0.4em] bg-black border-2 border-red-800 rounded text-red-300 py-2 mono-font focus:border-red-500 outline-none">
-            <div id="vip-error" class="text-red-500 text-[11px] mt-2 h-4 mono-font"></div>
+            <h2 id="gate-title" class="text-red-400 font-black tracking-widest mono-font">접근 잠금</h2>
+            <p id="gate-sub" class="text-red-800 text-[11px] mono-font mt-1">접근 권한 코드</p>
+            <input id="gate-input" type="password" inputmode="numeric" maxlength="4" placeholder="••••" autocomplete="off" class="mt-4 w-36 text-center text-xl tracking-[0.4em] bg-black border-2 border-red-800 rounded text-red-300 py-2 mono-font focus:border-red-500 outline-none">
+            <div id="gate-error" class="text-red-500 text-[11px] mt-2 min-h-[1.1rem] mono-font"></div>
             <div class="flex gap-2 mt-3">
-                <button onclick="closeVipModal()" class="flex-1 px-3 py-2 bg-gray-800/60 border border-gray-600 text-gray-300 rounded mono-font text-xs hover:bg-gray-700/60 transition-colors">취소</button>
-                <button onclick="tryVip()" class="flex-1 px-3 py-2 bg-red-900/50 border border-red-600 text-red-200 rounded mono-font text-xs font-bold hover:bg-red-800/70 transition-colors">확인 ▶</button>
+                <button onclick="closeGate()" class="flex-1 px-3 py-2 bg-gray-800/60 border border-gray-600 text-gray-300 rounded mono-font text-xs hover:bg-gray-700/60 transition-colors">취소</button>
+                <button id="gate-confirm" onclick="tryGate()" class="flex-1 px-3 py-2 bg-red-900/50 border border-red-600 text-red-200 rounded mono-font text-xs font-bold hover:bg-red-800/70 transition-colors">확인 ▶</button>
             </div>
-            <p class="text-red-900 text-[10px] mono-font mt-4 opacity-70">HINT · 표정원의 폰에 찍힌 그 날짜</p>
+            <p class="text-red-900 text-[10px] mono-font mt-4 opacity-70">HINT · 우리가 떠나는 날</p>
         </div>
     </div>
 
@@ -697,8 +697,14 @@
 
         // ===== 진입 잠금 (보안코드 1010) / VIP 접근 (0702) =====
         const ENTRY_CODE = '1010';
-        const VIP_CODE = '0702';
-        let vipUnlocked = false;
+        const GATE_CODE = '0702';
+        const GATE_MAX_FAILS = 6;      // 6회 이상 실패 시
+        const GATE_LOCK_MS = 120000;   // 2분 잠금
+        let gateFails = 0;
+        let gateLockUntil = 0;
+        let gateCountdownTimer = null;
+        let pendingTab = null;
+        const unlockedTabs = { vip: false, motion: false };
 
         function shakeBox(id) {
             const box = document.getElementById(id);
@@ -723,34 +729,102 @@
             }
         }
 
-        // VIP 접근 요청 (게이트)
-        function requestVip() {
-            if (vipUnlocked) { switchTab('vip'); return; }
-            const m = document.getElementById('vip-modal');
+        // ===== 접근 게이트 (VIP·움직임 감지 공용, 0702) =====
+        const GATE_META = {
+            vip:    { title: 'VIP 구역 잠금',    sub: '접근 권한 코드',      ico: 'vip-lock-ico',    label: 'VIP 구역' },
+            motion: { title: '움직임 감지 잠금', sub: '기록 열람 권한 코드', ico: 'motion-lock-ico', label: '움직임 감지' }
+        };
+
+        function gateLocked() { return Date.now() < gateLockUntil; }
+
+        function refreshGateLockUI() {
+            const inp = document.getElementById('gate-input');
+            const btn = document.getElementById('gate-confirm');
+            const err = document.getElementById('gate-error');
+            if (gateLocked()) {
+                const rem = Math.ceil((gateLockUntil - Date.now()) / 1000);
+                const mm = String(Math.floor(rem / 60)).padStart(2, '0');
+                const ss = String(rem % 60).padStart(2, '0');
+                err.innerText = `⛔ 잠금 — ${mm}:${ss} 후 재시도`;
+                inp.disabled = true; btn.disabled = true;
+                inp.classList.add('opacity-40'); btn.classList.add('opacity-40', 'cursor-not-allowed');
+            } else {
+                inp.disabled = false; btn.disabled = false;
+                inp.classList.remove('opacity-40'); btn.classList.remove('opacity-40', 'cursor-not-allowed');
+            }
+        }
+
+        function startGateCountdown() {
+            refreshGateLockUI();
+            if (gateCountdownTimer) clearInterval(gateCountdownTimer);
+            gateCountdownTimer = setInterval(() => {
+                if (gateLocked()) {
+                    refreshGateLockUI();
+                } else {
+                    clearInterval(gateCountdownTimer);
+                    gateCountdownTimer = null;
+                    gateFails = 0;
+                    refreshGateLockUI();
+                    document.getElementById('gate-error').innerText = '';
+                    const m = document.getElementById('gate-modal');
+                    if (!m.classList.contains('hidden')) document.getElementById('gate-input').focus();
+                }
+            }, 1000);
+        }
+
+        function requestGate(tabId) {
+            if (unlockedTabs[tabId]) { switchTab(tabId); return; }
+            pendingTab = tabId;
+            const meta = GATE_META[tabId];
+            document.getElementById('gate-title').innerText = meta.title;
+            document.getElementById('gate-sub').innerText = meta.sub;
+            document.getElementById('gate-input').value = '';
+            const m = document.getElementById('gate-modal');
             m.classList.remove('hidden');
             m.classList.add('flex');
-            setTimeout(() => document.getElementById('vip-input').focus(), 50);
+            if (gateLocked()) {
+                startGateCountdown();
+            } else {
+                document.getElementById('gate-error').innerText = '';
+                refreshGateLockUI();
+                setTimeout(() => document.getElementById('gate-input').focus(), 50);
+            }
         }
-        function closeVipModal() {
-            const m = document.getElementById('vip-modal');
+
+        function closeGate() {
+            const m = document.getElementById('gate-modal');
             m.classList.add('hidden');
             m.classList.remove('flex');
-            document.getElementById('vip-input').value = '';
-            document.getElementById('vip-error').innerText = '';
+            document.getElementById('gate-input').value = '';
+            if (!gateLocked()) document.getElementById('gate-error').innerText = '';
+            pendingTab = null;
         }
-        function tryVip() {
-            const inp = document.getElementById('vip-input');
-            const err = document.getElementById('vip-error');
-            if (inp.value === VIP_CODE) {
-                vipUnlocked = true;
-                document.getElementById('vip-lock-ico').innerText = '🔓';
-                closeVipModal();
-                addLogEntry("VIP_ACCESS GRANTED: 301호 [권한코드 인증 성공]", "success");
-                switchTab('vip');
+
+        function tryGate() {
+            if (gateLocked()) { refreshGateLockUI(); return; }
+            const inp = document.getElementById('gate-input');
+            const err = document.getElementById('gate-error');
+            const meta = GATE_META[pendingTab];
+            if (inp.value === GATE_CODE) {
+                gateFails = 0;
+                unlockedTabs[pendingTab] = true;
+                const ico = document.getElementById(meta.ico);
+                if (ico) ico.innerText = '🔓';
+                addLogEntry(`ACCESS GRANTED: ${meta.label} [권한코드 인증 성공]`, "success");
+                const t = pendingTab;
+                closeGate();
+                switchTab(t);
             } else {
-                err.innerText = 'DENIED — 권한코드 불일치';
+                gateFails++;
                 inp.value = '';
-                shakeBox('vip-box');
+                if (gateFails >= GATE_MAX_FAILS) {
+                    gateLockUntil = Date.now() + GATE_LOCK_MS;
+                    addLogEntry("SECURITY: 권한코드 6회 실패 — 게이트 2분 잠금", "alert");
+                    startGateCountdown();
+                } else {
+                    err.innerText = `DENIED — 코드 불일치 (${gateFails}/${GATE_MAX_FAILS})`;
+                }
+                shakeBox('gate-box');
             }
         }
 
@@ -761,8 +835,8 @@
                 li.focus();
                 li.addEventListener('keydown', e => { if (e.key === 'Enter') tryUnlock(); });
             }
-            const vi = document.getElementById('vip-input');
-            if (vi) vi.addEventListener('keydown', e => { if (e.key === 'Enter') tryVip(); });
+            const gi = document.getElementById('gate-input');
+            if (gi) gi.addEventListener('keydown', e => { if (e.key === 'Enter') tryGate(); });
         })();
     </script>
 </body>
