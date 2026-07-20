@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>평창빌라 관제 시스템</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -283,6 +286,34 @@
                     </div>
                     <div class="absolute bottom-2 right-2 sm:bottom-3 sm:right-3 text-red-500 text-xs sm:text-sm mono-font font-black osd-text z-30 bg-black/70 px-2 py-1 border-l-2 border-red-600">CAM-VIP2 [301호_침실]</div>
                 </div>
+            </div>
+
+            <!-- 녹취록 재생 박스 -->
+            <div class="md:col-span-2 bg-[#0a0505] border-2 border-red-800/70 rounded-lg p-3 sm:p-4 shadow-[0_0_25px_rgba(220,38,38,0.15)]">
+                <div class="flex items-center justify-between border-b border-red-900/50 pb-2 mb-3">
+                    <div class="flex items-center gap-2">
+                        <span class="bg-red-600 text-white text-[10px] px-2 py-0.5 font-black rounded-sm recording-dot">🔊 AUDIO</span>
+                        <h3 class="text-red-400 font-bold text-sm sm:text-base mono-font">확보된 녹취 파일</h3>
+                    </div>
+                    <span class="text-red-900 text-[9px] sm:text-[10px] mono-font hidden sm:block">EVIDENCE / AUDIO-01</span>
+                </div>
+
+                <div class="flex flex-col sm:flex-row sm:items-center gap-3 mb-3">
+                    <div class="w-12 h-12 rounded-full border-2 border-red-700 flex items-center justify-center bg-red-950/40 shrink-0">
+                        <svg class="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0-4a3 3 0 003-3V5a3 3 0 00-6 0v10a3 3 0 003 3z"/></svg>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-red-300 font-bold text-sm sm:text-base">차강혁 · 김연정 녹취록</p>
+                        <p class="text-gray-500 text-[10px] sm:text-[11px] mono-font mt-0.5 break-all">차강혁+김연정.m4a · SOURCE: 표정원 단서</p>
+                    </div>
+                </div>
+
+                <audio controls preload="metadata" class="w-full" style="filter: invert(1) hue-rotate(180deg) saturate(0.6); border-radius: 6px;">
+                    <source src="assets/rec-chakanghyuk-kimyeonjung.m4a" type="audio/mp4">
+                    이 브라우저는 오디오 재생을 지원하지 않습니다.
+                </audio>
+
+                <p class="text-red-900/80 text-[10px] mono-font mt-2">▶ 재생 버튼을 눌러 녹취 내용을 확인하십시오</p>
             </div>
         </div>
 
